@@ -18,6 +18,10 @@ export class GridFsService implements OnModuleInit {
         });
     }
 
+    getBucket(): GridFSBucket {
+        return this.bucket;
+    }
+
     async getFileContent(id: string): Promise<{ buffer: Buffer; filename: string; contentType: string }> {
         const fileId = new ObjectId(id);
         const files = await (this.connection.db!.collection('attachments.files') as any).find({ _id: fileId }).toArray();
