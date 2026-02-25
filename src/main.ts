@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import helmet from 'helmet';
 import compression from 'compression';
 
@@ -14,6 +15,9 @@ async function bootstrap() {
   app.use(helmet());
   app.enableCors();
   app.use(compression());
+
+  // Global Exceptions Filter (For Debugging)
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Global Validation
   app.useGlobalPipes(new ValidationPipe({
