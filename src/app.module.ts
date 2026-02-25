@@ -22,9 +22,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         const uri = config.get<string>('MONGODB_URI');
-        if (!uri) {
-          throw new Error('CRITICAL ERROR: MONGODB_URI is not defined in Environment Variables!');
-        }
+        const jwtSecret = config.get<string>('JWT_SECRET');
+        if (!uri) throw new Error('CRITICAL: MONGODB_URI is missing!');
+        if (!jwtSecret) throw new Error('CRITICAL: JWT_SECRET is missing!');
         return { uri };
       },
     }),
@@ -52,17 +52,19 @@ export class AppModule implements OnModuleInit {
 
   async onModuleInit() {
     // Seed super admin if it doesn't exist
-    const admin = await this.userService.findByEmail('admin@synapse.com');
+    const companyDomain = this.configService.get('COMPANY_DOMAIN') || 'synapse.com';
+    const adminEmail = `admin@${companyDomain}`;
+
+    const admin = await this.userService.findByEmail(adminEmail);
     if (!admin) {
-      const companyDomain = this.configService.get('COMPANY_DOMAIN') || 'synapse.com';
       await this.userService.create({
-        email: `admin@${companyDomain}`,
+        email: adminEmail,
         password: 'adminPassword123!',
         name: 'Super Admin',
         role: 'super_admin',
         storageLimit: 10 * 1024 * 1024 * 1024, // 10GB
       });
-      console.log(`Super Admin created: admin@${companyDomain}`);
+      console.log(`Super Admin created: ${adminEmail}`);
     }
   }
 }
