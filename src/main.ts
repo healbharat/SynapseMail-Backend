@@ -7,6 +7,9 @@ import compression from 'compression';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Global Prefix
+  app.setGlobalPrefix('api');
+
   // Security
   app.use(helmet());
   app.enableCors();
